@@ -1,10 +1,12 @@
 package org.example.ui;
 
-import org.example.model.*;
+import org.example.model.Carduri.Card;
+import org.example.model.Event.RaceEvent;
+import org.example.model.Friendhsip.FriendshipDTO;
+import org.example.model.Users.*;
 import org.example.service.Service;
 import org.example.utils.GraphUtils;
-import org.example.utils.RaceEventException;
-
+import org.example.utils.ModelException.RaceEventException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -13,15 +15,9 @@ import java.util.Set;
 public class Ui {
     private Scanner scanner = new Scanner(System.in);
     private final Service srv;
-    private long currentIdUsers;
-    private long currentIdCard;
-    private long currentIdRaceRepo;
 
     public Ui(Service srv) {
         this.srv = srv;
-        currentIdUsers = srv.getAllUsers().size() + 1;
-        currentIdCard = srv.getAllCards().size() + 1;
-        currentIdRaceRepo = srv.getAllRaceEvents().size() + 1;
     }
 
     private String login() {
@@ -41,6 +37,7 @@ public class Ui {
                     return user.getUsername();
                 }
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 System.out.println("Login failed. Returning to main menu.");
                 return null;
             }
@@ -86,14 +83,17 @@ public class Ui {
             }
             switch (choice) {
                 case "1": {
+                    //delete user
                     try {
                         srv.deleteUser(username);
+                        return;
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
-                    return;
+                    break;
                 }
                 case "2": {
+                    //find user
                     System.out.print("Enter username: ");
                     String usernameToFind = scanner.nextLine();
 
@@ -121,6 +121,7 @@ public class Ui {
                     break;
                 }
                 case "3": {
+                    //show user
                     try {
                         System.out.println("Username        ||       Email");
 
@@ -133,29 +134,34 @@ public class Ui {
                     break;
                 }
                 case "4": {
+                    //add friend
                     try {
                         System.out.print("Enter username: ");
                         String usernameToFind = scanner.nextLine();
                         srv.addFriend(username, usernameToFind);
+                        System.out.println("Friend added successfully!");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 }
                 case "5": {
+                    //remove friend
                     try {
                         System.out.print("Enter username: ");
                         String usernameToFind = scanner.nextLine();
                         srv.removeFriend(username, usernameToFind);
+                        System.out.println("Friend removed successfully!");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 }
                 case "6": {
+                    //show friends
                     try {
-                        for (User user : srv.getFriends(username)) {
-                            System.out.println(user.getUsername());
+                        for (String us : srv.getFriends(username)) {
+                            System.out.println(us);
                         }
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -163,6 +169,7 @@ public class Ui {
                     break;
                 }
                 case "7": {
+                    //number of communities
                     try {
                         System.out.println("Number of communities: " + srv.getNumberOfCommunities());
                     } catch (Exception e) {
@@ -171,6 +178,7 @@ public class Ui {
                     break;
                 }
                 case "8": {
+                    //most social community
                     try {
                         GraphUtils.Pair<Set<String>, Integer> pair = srv.getMostSociableCommunity();
                         for (String us : pair.first) {
@@ -183,8 +191,9 @@ public class Ui {
                     break;
                 }
                 case "9": {
+                    //create flock
                         try {
-                            System.out.print("Enter flock type (zburatori/inotatori): ");
+                            System.out.print("Enter flock type (zburatori/inotatori/inotatori_si_zburatori): ");
                             String type = scanner.nextLine().trim().toLowerCase();
 
                             System.out.print("Name: ");
@@ -192,7 +201,7 @@ public class Ui {
 
                             switch (type) {
                                 case "zburatori": {
-                                    String[] args = new String[]{String.valueOf(currentIdCard), name};
+                                    String[] args = new String[]{name};
                                     Card<Duck> card = srv.addCard("zburatori", args);
                                     System.out.println("Flock has been created");
                                     User user = srv.findUser(username);
@@ -204,7 +213,7 @@ public class Ui {
                                     break;
                                 }
                                 case "inotatori": {
-                                    String[] args = new String[]{String.valueOf(currentIdCard), name};
+                                    String[] args = new String[]{name};
                                     Card<Duck> card = srv.addCard("inotatori", args);
                                     System.out.println("Flock has been created");
                                     User user = srv.findUser(username);
@@ -212,6 +221,20 @@ public class Ui {
                                         if (d instanceof SwimmingDuck swimmingDuck)
                                             card.adaugaMembru(swimmingDuck);
                                         else if (d instanceof FlyingAndSwimmingDuck flyingAndSwimmingDuck)
+                                            card.adaugaMembru(flyingAndSwimmingDuck);
+                                    break;
+                                }
+                                case "inotatori_si_zburatori": {
+                                    String[] args = new String[]{name};
+                                    Card<Duck> card = srv.addCard("inotatori_si_zburatori", args);
+                                    System.out.println("Flock has been created");
+                                    User user = srv.findUser(username);
+                                    if (user instanceof Duck d)
+                                        if (d instanceof SwimmingDuck swimmingDuck)
+                                            card.adaugaMembru(swimmingDuck);
+                                        else if (d instanceof FlyingDuck flyingDuck)
+                                            card.adaugaMembru(flyingDuck);
+                                         else if (d instanceof FlyingAndSwimmingDuck flyingAndSwimmingDuck)
                                             card.adaugaMembru(flyingAndSwimmingDuck);
                                     break;
                                 }
@@ -224,6 +247,7 @@ public class Ui {
                         break;
                     }
                 case "10": {
+                    //delete flock
                     while (true) {
                         try {
                             System.out.print("Enter flock name: ");
@@ -237,6 +261,7 @@ public class Ui {
                     }
                 }
                 case "11": {
+                    //show flocks
                     try{
                         System.out.println("Name");
                         if (srv.getAllCards().isEmpty())
@@ -251,17 +276,18 @@ public class Ui {
                     break;
                 }
                 case "12": {
+                    //search flock
                     try{
                         System.out.println("Name: ");
                         String name = scanner.nextLine().trim();
                         Card<? extends Duck> card = srv.findCard(name);
 
-                        System.out.print("Name: " +  card.getNume());
+                        System.out.println("Name: " +  card.getNume());
 
                         System.out.println("Members: ");
-                        for (var d : card.getMembri())
-                            System.out.print(d.getUsername());
-
+                        for (String duck_us : srv.getMembers(card.getNume()))
+                            System.out.print(duck_us);
+                        System.out.println();
                         System.out.println("Avg. performance: " + card.getPerformantaMedie());
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -269,22 +295,14 @@ public class Ui {
                     break;
                 }
                 case "13": {
+                    //add duck to flock
                     try {
                         System.out.print("Flock name: ");
                         String nameToFind = scanner.nextLine().trim();
-                        Card<Duck> card = srv.findCard(nameToFind);
-
                         System.out.print("Username: ");
                         String name = scanner.nextLine().trim();
-                        User user = srv.findUser(name);
 
-                         if (user instanceof Duck d)
-                            if (d instanceof SwimmingDuck swimmingDuck)
-                                card.adaugaMembru(swimmingDuck);
-                            else if (d instanceof FlyingDuck flyingDuck)
-                                card.adaugaMembru(flyingDuck);
-                            else if (d instanceof FlyingAndSwimmingDuck flyingAndSwimmingDuck)
-                                card.adaugaMembru(flyingAndSwimmingDuck);
+                        srv.addMemberToCard(nameToFind, name);
                         System.out.println("Member added succesfully");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -292,19 +310,14 @@ public class Ui {
                     break;
                 }
                 case "14": {
+                    //remove duck from flock
                     try{
                         System.out.print("Flock name: ");
                         String nameToFind = scanner.nextLine().trim();
-                        Card<Duck> card = srv.findCard(nameToFind);
                         System.out.print("Username: ");
-                        User user = srv.findUser(nameToFind);
-                        if (user instanceof Duck d)
-                            if (d instanceof SwimmingDuck swimmingDuck)
-                                card.removeMembru(swimmingDuck);
-                            else if (d instanceof FlyingDuck flyingDuck)
-                                card.removeMembru(flyingDuck);
-                            else if (d instanceof FlyingAndSwimmingDuck flyingAndSwimmingDuck)
-                                card.removeMembru(flyingAndSwimmingDuck);
+                        String name = scanner.nextLine().trim();
+
+                        srv.removeMemberCard(nameToFind, name);
                         System.out.println("Member removed succesfully");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -312,6 +325,7 @@ public class Ui {
                     break;
                 }
                 case "15": {
+                    //create race event
                     try {
                         System.out.print("Race name: ");
                         String name = scanner.nextLine();
@@ -331,8 +345,7 @@ public class Ui {
                             distances.add(Double.valueOf(num));
                         }
 
-                        long id = currentIdRaceRepo++;
-                        RaceEvent re = srv.addRaceEvent(id, name, distances, Integer.valueOf(m));
+                        RaceEvent re = srv.addRaceEvent(name, distances, Integer.valueOf(m));
                         System.out.println("Race created succesfully");
                         System.out.print("Start race event? (y/n): ");
                         while (true) {
@@ -352,22 +365,24 @@ public class Ui {
                     break;
                 }
                 case "16": {
+                    //search race event
                     try{
                         System.out.print("Race name: ");
                         String name =  scanner.nextLine().trim();
                         System.out.println();
                         System.out.println("Info:");
-                        String raceEvent = srv.findAnyRaceEvent(name);
-                        System.out.println(raceEvent);
+                        RaceEvent raceEvent = srv.findRaceEvent(name);
+                        System.out.println(raceEvent.toString());
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 }
                 case "17": {
+                    //find all race events
                     try{
                         System.out.println("Race events: ");
-                        for (Object o : srv.getAllAnyRaceEvents())
+                        for (Object o : srv.getAllRaceEvents())
                             System.out.println(o.toString());
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -375,30 +390,35 @@ public class Ui {
                     break;
                 }
                 case "18": {
+                    //subscribe to event
                     try{
                         User user = srv.findUser(username);
                         System.out.print("Race name: ");
                         String name = scanner.nextLine().trim();
                         RaceEvent re = srv.findRaceEvent(name);
-                        re.subscribe(user);
+                        srv.subscribe(user, re);
                         System.out.println("Subscribed to " + name);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
+                    break;
                 }
                 case "19": {
+                    //unsubscribe from event
                     try{
                         User user = srv.findUser(username);
                         System.out.print("Race name: ");
                         String name = scanner.nextLine().trim();
                         RaceEvent re = srv.findRaceEvent(name);
-                        re.unsubscribe(user);
+                        srv.unsubscribe(user, re);
                         System.out.println("Unsubscribed from " + name);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
+                    break;
                 }
                 case "20": {
+                    //start race event
                     try{
                         System.out.println("Race name: ");
                         String name = scanner.nextLine().trim();
@@ -407,6 +427,7 @@ public class Ui {
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
+                    break;
                 }
                 case "E": {
                     System.out.println("Returning to main menu");
@@ -442,6 +463,7 @@ public class Ui {
             }
             switch (choice) {
                 case "1": {
+                    //find user
                     try {
                         System.out.println("Enter username: ");
                         String username = scanner.nextLine();
@@ -469,6 +491,7 @@ public class Ui {
                     break;
                 }
                 case "2": {
+                    //show users
                     try {
                         System.out.println("Username        ||       Email");
                         for (User user : srv.getAllUsers()) {
@@ -480,9 +503,10 @@ public class Ui {
                     break;
                 }
                 case "3": {
+                    //show friendships
                     try {
-                        for (Friendship friendship : srv.getAllFriendships()){
-                            System.out.println(friendship.getUser1().getUsername() + "<->" + friendship.getUser2().getUsername());
+                        for (FriendshipDTO f: srv.getAllDTOFriendships()){
+                            System.out.println(f.username1() + "<->" + f.username2() + " friends since " + f.createdAt());
                         }
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -490,6 +514,7 @@ public class Ui {
                     break;
                 }
                 case "4": {
+                    //number of communities
                     try {
                         System.out.println("Number of communities: " + srv.getNumberOfCommunities());
                     } catch (Exception e) {
@@ -498,6 +523,7 @@ public class Ui {
                     break;
                 }
                 case "5": {
+                    //most social community
                     try {
                         GraphUtils.Pair<Set<String>, Integer> pair = srv.getMostSociableCommunity();
                         for (String username : pair.first) {
@@ -510,6 +536,7 @@ public class Ui {
                     break;
                 }
                 case "6": {
+                    //show all flocks
                     try{
                         System.out.println("Name");
                         for (Card card : srv.getAllCards()) {
@@ -521,6 +548,7 @@ public class Ui {
                     break;
                 }
                 case "7": {
+                    //search flocks
                     try{
                         System.out.println("Name: ");
                         String name = scanner.nextLine().trim();
@@ -529,7 +557,7 @@ public class Ui {
                         System.out.print("Name: " +  card.getNume());
 
                         System.out.println("Membri: ");
-                        for (var d : card.getMembri())
+                        for (Duck d : card.getMembri())
                             System.out.println(d.getUsername());
                         System.out.println("Avg. performance: " + card.getPerformantaMedie());
                     } catch (Exception e) {
@@ -538,12 +566,13 @@ public class Ui {
                     break;
                 }
                 case "8": {
+                    //search race event
                     try{
                         System.out.print("Race name: ");
                         String name =  scanner.nextLine().trim();
                         System.out.println();
                         System.out.println("Info:");
-                        String raceEvent = srv.findAnyRaceEvent(name);
+                        RaceEvent raceEvent = srv.findRaceEvent(name);
                         System.out.println(raceEvent);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -551,9 +580,10 @@ public class Ui {
                     break;
                 }
                 case "9": {
+                    //show all race events
                     try{
                         System.out.println("Race events: ");
-                        for (Object o : srv.getAllAnyRaceEvents())
+                        for (Object o : srv.getAllRaceEvents())
                             System.out.println(o.toString());
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -603,10 +633,8 @@ public class Ui {
                     System.out.println("Empathy: (between 0 and 1000)");
                     String nivelEmpatie = scanner.nextLine().trim();
 
-                    long id = currentIdUsers++;
-
-                    String[] args = new String[]{String.valueOf(id), username, password, email, nume, prenume, dataNasterii, ocupatie, nivelEmpatie};
-                    srv.add("person", args);
+                    String[] args = new String[]{username, password, email, nume, prenume, dataNasterii, ocupatie, nivelEmpatie};
+                    //srv.add("person", args);
                     System.out.println("User registred successfully");
                     return;
                 }
@@ -629,10 +657,8 @@ public class Ui {
                     System.out.print("Stamina: ");
                     String rezistenta = scanner.nextLine().trim();
 
-                    long id = currentIdUsers++;
-
-                    String[] args = new String[]{String.valueOf(id), username, password, email, tip, viteza, rezistenta};
-                    srv.add("duck", args);
+                    String[] args = new String[]{username, password, email, tip, viteza, rezistenta};
+                    //srv.add("duck", args);
                     System.out.println("User registred successfully");
                     return;
                 }
@@ -662,8 +688,8 @@ public class Ui {
             String choice;
             while (true) {
                 System.out.print(">>> ");
-                choice = scanner.nextLine();
-                if (choice.equals("1") ||  choice.equals("2") || choice.equals("3") || choice.equals("4"))
+                choice = scanner.nextLine().trim().toUpperCase();
+                if (choice.equals("1") ||  choice.equals("2") || choice.equals("3") || choice.equals("4") || choice.equals("E"))
                     break;
             }
 

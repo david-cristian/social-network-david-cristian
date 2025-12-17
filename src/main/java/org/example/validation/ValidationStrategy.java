@@ -1,6 +1,6 @@
 package org.example.validation;
 
-import org.example.model.User;
+import org.example.model.Users.User;
 import org.example.utils.ValidationException;
 
 public interface ValidationStrategy {

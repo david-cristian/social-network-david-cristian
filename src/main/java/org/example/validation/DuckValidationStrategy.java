@@ -1,9 +1,9 @@
 package org.example.validation;
 
-import org.example.model.Duck;
-import org.example.model.DuckType;
+import org.example.model.Users.Duck;
+import org.example.model.Users.DuckType;
 import org.example.utils.ValidationException;
-import org.example.model.User;
+import org.example.model.Users.User;
 
 public class DuckValidationStrategy implements ValidationStrategy {
     public void validate(User user) throws ValidationException {

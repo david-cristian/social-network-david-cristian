@@ -1,8 +1,8 @@
 package org.example.validation;
 
-import org.example.model.User;
+import org.example.model.Users.User;
 import org.example.utils.ValidationException;
-import org.example.model.Person;
+import org.example.model.Users.Person;
 
 public class PersonValidationStrategy implements ValidationStrategy {
     public void validate(User user) throws ValidationException {

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+
+<VBox alignment="CENTER" spacing="20.0" prefHeight="450.0" prefWidth="400.0"
+      xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.controller.LoginController"
+      stylesheets="@/css/style.css">
+
+    <padding><Insets bottom="30.0" left="30.0" right="30" top="30.0"/></padding>
+    <ImageView fx:id="duckLogoImage" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+        <image>
+            <Image url="@/images/duck.png"/>
+        </image>
+    </ImageView>
+    <Label text="Duck Social Network" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="usernameField" promptText="Username"/>
+
+    <StackPane alignment="CENTER_RIGHT" maxWidth="350">
+
+        <PasswordField fx:id="passwordField" promptText="Password" style="-fx-padding: 5 30 5 5; -fx-background-radius: 5;"/>
+
+        <TextField fx:id="passwordTextField" promptText="Password" visible="false" managed="false" style="-fx-padding: 5 30 5 5; -fx-background-radius: 5;"/>
+
+        <ToggleButton fx:id="togglePasswordBtn" text="👁" onAction="#onTogglePassword"
+                      style="-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: gray; -fx-font-size: 14px;"
+                      StackPane.alignment="CENTER_RIGHT">
+            <padding><Insets right="10"/></padding>
+        </ToggleButton>
+
+    </StackPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Login" onAction="#onLoginAction" defaultButton="true"/>
+        <Button text="Register" onAction="#onRegisterAction"/>
+    </HBox>
+
+    <Separator/>
+    <Button text="Continue as Guest (Read Only)" onAction="#onGuestAction"/>
+</VBox>
